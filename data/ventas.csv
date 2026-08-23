@@ -1,0 +1,13 @@
+producto,ventas,precio,clientes,satisfaccion
+Laptop,120,3500,90,4.7
+Laptop,135,3500,100,4.8
+Laptop,150,3600,115,4.9
+Celular,250,1200,230,4.3
+Celular,280,1250,260,4.5
+Celular,310,1300,290,4.6
+Tablet,180,1800,160,4.4
+Tablet,190,1850,170,4.5
+Tablet,205,1900,185,4.6
+Monitor,80,900,70,4.1
+Monitor,95,950,85,4.2
+Monitor,110,1000,100,4.4

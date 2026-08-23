@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    DataPulse Analytics
+  </title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+      background:
+        #0f172a;
+
+      color:
+        #e2e8f0;
+    }
+
+    .container {
+      max-width:
+        1200px;
+
+      margin:
+        auto;
+
+      padding:
+        40px 20px;
+    }
+
+    h1 {
+      font-size:
+        38px;
+    }
+
+    .subtitle {
+      color:
+        #94a3b8;
+    }
+
+    .card {
+      background:
+        #1e293b;
+
+      border-radius:
+        16px;
+
+      padding:
+        24px;
+
+      margin-top:
+        20px;
+    }
+
+    .upload {
+      border:
+        2px dashed #475569;
+
+      border-radius:
+        16px;
+
+      padding:
+        50px;
+
+      text-align:
+        center;
+    }
+
+    button {
+      background:
+        #2563eb;
+
+      color:
+        white;
+
+      border:
+        none;
+
+      border-radius:
+        10px;
+
+      padding:
+        12px 22px;
+
+      cursor:
+        pointer;
+
+      font-size:
+        16px;
+    }
+
+    button:hover {
+      background:
+        #1d4ed8;
+    }
+
+    .grid {
+      display:
+        grid;
+
+      grid-template-columns:
+        repeat(
+          auto-fit,
+          minmax(220px, 1fr)
+        );
+
+      gap:
+        16px;
+
+      margin-top:
+        20px;
+    }
+
+    .metric {
+      background:
+        #334155;
+
+      padding:
+        20px;
+
+      border-radius:
+        14px;
+    }
+
+    .metric-value {
+      font-size:
+        30px;
+
+      font-weight:
+        bold;
+    }
+
+    table {
+      width:
+        100%;
+
+      border-collapse:
+        collapse;
+    }
+
+    th,
+    td {
+      text-align:
+        left;
+
+      padding:
+        12px;
+
+      border-bottom:
+        1px solid #475569;
+    }
+
+    .hidden {
+      display:
+        none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>
+    DataPulse Analytics
+  </h1>
+
+  <p class="subtitle">
+    Plataforma avanzada de análisis exploratorio de datos
+  </p>
+
+  <div class="card">
+
+    <div class="upload">
+
+      <h2>
+        Cargar dataset
+      </h2>
+
+      <input
+        id="file"
+        type="file"
+        accept=".csv"
+      >
+
+      <br>
+      <br>
+
+      <button onclick="analyze()">
+        Analizar dataset
+      </button>
+
+    </div>
+
+  </div>
+
+  <div
+    id="dashboard"
+    class="hidden"
+  >
+
+    <div
+      class="grid"
+      id="metrics"
+    ></div>
+
+    <div class="card">
+
+      <h2>
+        Estadísticas
+      </h2>
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Variable</th>
+            <th>Promedio</th>
+            <th>Mediana</th>
+            <th>Desviación</th>
+            <th>Mínimo</th>
+            <th>Máximo</th>
+            <th>Outliers</th>
+          </tr>
+
+        </thead>
+
+        <tbody
+          id="stats"
+        ></tbody>
+
+      </table>
+
+    </div>
+
+    <div class="card">
+
+      <h2>
+        Correlaciones
+      </h2>
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Variable A</th>
+            <th>Variable B</th>
+            <th>Correlación</th>
+            <th>Fuerza</th>
+          </tr>
+
+        </thead>
+
+        <tbody
+          id="correlations"
+        ></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+async function analyze() {
+
+  const input =
+    document.getElementById(
+      "file"
+    );
+
+  if (!input.files.length) {
+
+    alert(
+      "Selecciona un archivo CSV."
+    );
+
+    return;
+  }
+
+  const formData =
+    new FormData();
+
+  formData.append(
+    "file",
+    input.files[0]
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/analyze",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error
+      );
+    }
+
+    renderDashboard(
+      result.analysis
+    );
+
+  } catch (error) {
+
+    alert(
+      error.message
+    );
+  }
+}
+
+function renderDashboard(
+  data
+) {
+
+  document
+    .getElementById(
+      "dashboard"
+    )
+    .classList
+    .remove("hidden");
+
+  document
+    .getElementById(
+      "metrics"
+    )
+    .innerHTML = `
+
+      <div class="metric">
+        <div>Filas</div>
+        <div class="metric-value">
+          ${data.rows}
+        </div>
+      </div>
+
+      <div class="metric">
+        <div>Columnas</div>
+        <div class="metric-value">
+          ${data.columns}
+        </div>
+      </div>
+
+      <div class="metric">
+        <div>Variables numéricas</div>
+        <div class="metric-value">
+          ${data.numericColumns.length}
+        </div>
+      </div>
+
+      <div class="metric">
+        <div>Variables categóricas</div>
+        <div class="metric-value">
+          ${data.categoricalColumns.length}
+        </div>
+      </div>
+    `;
+
+  document
+    .getElementById(
+      "stats"
+    )
+    .innerHTML =
+      data.statistics
+        .map(
+          stat => `
+
+            <tr>
+
+              <td>
+                ${stat.column}
+              </td>
+
+              <td>
+                ${stat.mean.toFixed(2)}
+              </td>
+
+              <td>
+                ${stat.median.toFixed(2)}
+              </td>
+
+              <td>
+                ${stat.stdDev.toFixed(2)}
+              </td>
+
+              <td>
+                ${stat.min}
+              </td>
+
+              <td>
+                ${stat.max}
+              </td>
+
+              <td>
+                ${stat.outliers.length}
+              </td>
+
+            </tr>
+          `
+        )
+        .join("");
+
+  document
+    .getElementById(
+      "correlations"
+    )
+    .innerHTML =
+      data.correlations
+        .map(
+          item => `
+
+            <tr>
+
+              <td>
+                ${item.variableA}
+              </td>
+
+              <td>
+                ${item.variableB}
+              </td>
+
+              <td>
+                ${item.correlation}
+              </td>
+
+              <td>
+                ${item.strength}
+              </td>
+
+            </tr>
+          `
+        )
+        .join("");
+}
+
+</script>
+
+</body>
+
+</html>
