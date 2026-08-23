@@ -21,18 +21,64 @@ export interface NumericStatistics {
   outliers: number[];
 }
 
-export interface CorrelationResult {
-  variableA: string;
-  variableB: string;
-  correlation: number;
-  strength:
-    | "very weak"
-    | "weak"
-    | "moderate"
-    | "strong"
-    | "very strong";
-}
+/**
+ * ============================================================================
+ * TIPOS DE CORRELACIÓN
+ * ============================================================================
+ */
 
+
+/**
+ * Clasificación de la fuerza absoluta de una correlación.
+ *
+ * La dirección positiva/negativa se conserva en el valor `correlation`.
+ */
+export type CorrelationStrength =
+  | "very weak"
+  | "weak"
+  | "moderate"
+  | "strong"
+  | "very strong";
+
+
+/**
+ * Resultado de una correlación de Pearson.
+ */
+export interface CorrelationResult {
+
+  /**
+   * Primera variable analizada.
+   */
+  variableA: string;
+
+  /**
+   * Segunda variable analizada.
+   */
+  variableB: string;
+
+  /**
+   * Coeficiente de Pearson.
+   *
+   * Rango matemático:
+   *
+   *     -1 <= correlation <= 1
+   */
+  correlation: number;
+
+  /**
+   * Cantidad de observaciones utilizadas realmente
+   * para calcular Pearson.
+   *
+   * Este valor puede ser menor que dataset.rows.length
+   * debido a valores faltantes.
+   */
+  sampleSize: number;
+
+  /**
+   * Fuerza absoluta de la relación.
+   */
+  strength: CorrelationStrength;
+}
 export interface DatasetAnalysis {
   rows: number;
   columns: number;
